@@ -25,7 +25,6 @@
 
 from .models import Models, ValidationException
 from .helpers import cur_to_list
-
 import bcrypt
 
 
@@ -55,7 +54,6 @@ class Users(Models):
         if search:
             self.query()
         self.password = password
-
         self.role = role
         if not search:
             self.getData()
@@ -76,7 +74,7 @@ class Users(Models):
                 else:
                     raise ValidationException("Invalid Password Or Email", 406)
             else:
-                raise ValidationException("User does not exists", 406)
+                raise ValidationException("User does not exist", 406)
         else:
             raise ValidationException("Validate model first", 403)
 
@@ -107,7 +105,6 @@ class Users(Models):
                 ),
                 first=True,
             )
-
             self.data.update(data)
             return self.data
         elif self.email:
@@ -117,7 +114,6 @@ class Users(Models):
                 ),
                 first=True,
             )
-
             self.data.update(data)
             return self.data
         elif self.id:
@@ -125,7 +121,6 @@ class Users(Models):
                 self.db.find_one({"_id": {"$regex": f"{self.id}", "$options": "i"}}),
                 first=True,
             )
-
             self.data.update(data)
             return self.data
         else:

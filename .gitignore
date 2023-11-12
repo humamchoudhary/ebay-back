@@ -1,4 +1,4 @@
-/env
-/Junk
-test.ipynb
-.env
+env/
+/test.ipynb
+/.env
+__pycache__/

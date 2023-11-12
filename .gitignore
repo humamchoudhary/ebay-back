@@ -1,3 +1,4 @@
-env/*
-Junk/*
+/env
+/Junk
 test.ipynb
+.env

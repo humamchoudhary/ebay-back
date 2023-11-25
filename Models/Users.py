@@ -1,14 +1,9 @@
-from .models import Models, ValidationException
+from .models import Models, ValidationException, CustomException
 import bcrypt
 from .validators import EmailValidator, PasswordValidator
 
 
 class Users(Models):
-    meta = {
-        "validate": [("email", EmailValidator()), ("password", PasswordValidator())],
-        "searchParams": ["_id", "username", "email"],
-    }
-
     def __init__(
         self,
         email=None,
@@ -17,15 +12,23 @@ class Users(Models):
         role="user",
         id=None,
     ) -> None:
-        super().__init__()
         self.username = username
         self.email = email
         self.password = password
         self.role = role
         self._id = id
+        self.cart = None
+        self._meta = {
+            "validate": [
+                ("email", EmailValidator()),
+                ("password", PasswordValidator()),
+            ],
+            "searchParams": ["_id", "username", "email"],
+        }
+        super().__init__()
 
     def login(self):
-        if self.valid:
+        if self._valid:
             data = self.find()
             if len(data) == 1:
                 if bcrypt.checkpw(
@@ -42,7 +45,7 @@ class Users(Models):
             raise ValidationException("Validate model first", 403)
 
     def signup(self):
-        if self.valid:
+        if self._valid:
             if not self.db.find_one({"email": self.email}):
                 if not self.db.find_one({"username": self.username}):
                     data = {
@@ -100,7 +103,47 @@ class User(Users):
     def __init__(self, email=None, username=None, password=None, id=None) -> None:
         super().__init__(email, username, password, "user", id)
 
+    def checkout(self):
+        if self._valid:
+            self.reinit()
+            if self.cart:
+                amount = 0
+                for i in self.cart:
+                    amount += i.amount
+                return amount
+            else:
+                CustomException("Empty Cart", code=403)
+        else:
+            raise CustomException("Validate Model First", code=401)
+
+    def editCart(self, item, quantity):
+        self.reinit()
+        print(self.cart)
+        # l = Listing(id=itemId)
+        if item.reinit():
+            itemId = item._id
+            for i, item in enumerate(self.cart):
+                if item["id"] == itemId:
+                    self.cart[i]["quantity"] += quantity
+                    self.cart[i]["price"] = l.price
+                    if self.cart[i]["quantity"] <= 0:
+                        self.cart.pop(i)
+                    break
+            else:
+                self.cart.append({"id": itemId, "quantity": quantity, "price": l.price})
+                if self.cart[i]["quantity"] <= 0:
+                    self.cart.pop()
+            self._update({"cart": self.cart})
+        else:
+            raise CustomException("Product not found", 403)
+
 
 class Admin(Users):
     def __init__(self, email=None, username=None, password=None, id=None) -> None:
         super().__init__(email, username, password, "admin", id)
+
+    def verify(self, item):
+        if self.role == "admin":
+            item.verified = not item.verified
+        else:
+            raise CustomException("UnAuthorized", 401)

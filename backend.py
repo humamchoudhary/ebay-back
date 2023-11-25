@@ -1,72 +1,8 @@
-from pymongo import MongoClient
-from flask import Flask, jsonify, session, request, abort
-from flask_cors import CORS
-from flask_session import Session
-from datetime import timedelta, datetime
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
-from bson.objectid import ObjectId
-from decouple import config
-from helpers import cur_to_list
-from Models import *
+from settings import app, limiter, create_response
+from Models import User, Listing
+from flask import session, request, abort
 import json
-
-app = Flask(__name__)
-app.config["SECRET_KEY"] = config("FLASK_SECRET_KEY")
-
-
-# MongoDB setup
-connnect_string = config("MGDB_CONN_STRING")
-app.config["MONGO_URI"] = connnect_string
-# mongo = PyMongo(app)
-# client = mongo.cx
-client = MongoClient(connnect_string)
-
-
-# Session Setup
-app.config["SESSION_TYPE"] = "mongodb"
-app.config["SESSION_PERMANENT"] = True
-app.config["SESSION_MONGODB"] = client
-app.permanent_session_lifetime = timedelta(seconds=10)
-
-
-# Rate Limiter Setup
-limiter = Limiter(
-    key_func=get_remote_address, app=app, default_limits=["750 per day", "50 per hour"]
-)
-
-CORS(app)
-sess = Session(app)
-
-
-def create_response(data=None, message="Success", error=False, status=200):
-    """
-    Utility function to create a standardized JSON response.
-    """
-    response = {"status": status, "message": message, "error": error, "data": data}
-    return jsonify(response), status
-
-
-@app.before_request
-@limiter.exempt
-def sessionCheck():
-    session.permanent = True
-    app.permanent_session_lifetime = timedelta(days=15)
-    if request.endpoint in ["out"]:
-        if session.get("ip") != request.remote_addr:
-            abort(401)
-
-            # return jsonify({"message":"unauthorized! Turn of proxy if any active","error":True})
-
-
-@app.route("/getsessionuser", methods=["POST"])
-@limiter.exempt
-def sessionUser():
-    if session and session.get("user"):
-        print(session.items())
-        return create_response({"id": session.get("user")})
-    else:
-        return create_response(error=True, message="No user found", status=401)
+from datetime import datetime
 
 
 @app.route("/user/login", methods=["POST"])
@@ -138,7 +74,7 @@ def addItem():
     )
 
     try:
-        item.valid = True
+        item._valid = True
         item.add()
         return create_response({"id": item.getID()})
 
@@ -209,83 +145,13 @@ def deleteItem():
         abort(e.code, {"message": e.message})
 
 
-@app.errorhandler(429)
-def toomanyrequests(error):
-    return create_response(
-        message="too many requests" if not error.description else error.description,
-        error=True,
-        status=429,
-    )
-
-
-@app.errorhandler(500)
-def internalServerError(error):
-    print(error.description)
-    return create_response(
-        message="Internal Server Error" if not error.description else error.description,
-        error=True,
-        status=500,
-    )
-
-
-@app.errorhandler(404)
-def Error404(error):
-    print(error.description)
-    return create_response(
-        message="Page not found" if not error.description else error.description,
-        error=True,
-        status=404,
-    )
-
-
-@app.errorhandler(401)
-def ErrorUnAuth(error):
-    return create_response(
-        message="Unauthorized" if not error.description else error.description,
-        error=True,
-        status=401,
-    )
-
-
-@app.errorhandler(403)
-def Error(error):
-    return create_response(
-        message="Error Occured" if not error.description else error.description,
-        error=True,
-        status=403,
-    )
-
-
-@app.errorhandler(406)
-def internalServerError(error):
-    return create_response(
-        message="Not Acceptable" if not error.description else error.description,
-        error=True,
-        status=406,
-    )
-
-
-from schedule import every, repeat, run_pending
-import threading
-
-
-@repeat(every(1).hours)
-def session_cleanup():
-    client.flask_session["sessions"].delete_many(
-        {"expiration": {"$lte": datetime.utcnow()}}
-    )
-
-
-import time
-
-
-def run_schedule():
-    while 1:
-        run_pending()
-        time.sleep(60 * 60)
-
-
-if __name__ == "__main__":
-    # t = threading.Thread(target=run_schedule)
-    # t.start()
-    app.run(host="0.0.0.0", debug=True)
+@app.route("/item/bid", methods=["POST"])
+def bidAdd():
+    data = json.loads(request.data.decode("utf-8"))
+    item = Listing(id=data.get("itemId"))
+    user = User(id=data.get("userId"))
+    try:
+        item.bid(user)
+        return create_response()
+    except Exception as e:
+        abort(e.code, {"message": e.message})

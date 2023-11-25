@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PakBay</title>
+    <script src="https://unpkg.com/htmx.org@1.9.4"></script>
+    <link
+      href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <section class="section">
+      <div class="grid grid-cols-4 gap-4">
+        {% for product in products %} {% include 'components/items.html' %} {%
+        endfor %}
+      </div>
+    </section>
+  </body>
+</html>

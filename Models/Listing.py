@@ -2,48 +2,27 @@ from .models import Models, ValidationException, CustomException
 from .helpers import cur_to_list
 from datetime import datetime
 from .Users import Admin
+from datetime import timedelta
 
 
 class Listing(Models):
-    data = {
-        "name": None,
-        "description": None,
-        "images": [],
-        "verified": False,
-        "price": 0,
-    }
-    meta = {
-        **Models.meta,
-        "name": "listings",
-        "validate": [
-            ("name", lambda: True),
-            ("createdBy", lambda: True),
-            ("categories", lambda: True),
-        ],
-        "searchParams": [
-            "_id",
-            "name",
-            "price",
-            "verified",
-            "creationTime",
-            "categories",
-        ],
-        # "required": ["name", "description", "price", "images"],
-    }
-
     def __init__(
         self,
         name=None,
         description=None,
         images=[],
-        price=0.0,
+        price=0,
         createdBy=None,
         categories=[],
         id=None,
         creationTime=None,
-        verified=False,
+        verified=None,
+        isAuction=True,
+        endTime=timedelta(days=15),
+        startPrice=0.0,
+        increaments=0.05,
+        discount=0.0,
     ) -> None:
-        super().__init__()
         self.name = name
         self.description = description
         self.images = images
@@ -52,20 +31,61 @@ class Listing(Models):
         self.categories = categories
         self.createdBy = createdBy
         self.creationTime = creationTime
+
+        self.isAuction = isAuction
+        self.startPrice = startPrice
+        if creationTime:
+            self.endTime = creationTime + endTime
+        self.increaments = price * increaments
+        self.lastbider = None
+        self.noOfbids = 0
+        self.currentBid = startPrice
+        self.discount = discount
+
         if id:
             self._id = id
+
+        self._meta = {
+            "name": "listings",
+            "validate": [
+                ("name", lambda x: True),
+                ("createdBy", lambda x: True),
+                ("categories", lambda x: True),
+            ],
+            "searchParams": [
+                "_id",
+                "name",
+                "price",
+                "verified",
+                "creationTime",
+                "categories",
+            ],
+            # "required": ["name", "description", "price", "images"],
+        }
+        super().__init__()
+
+    def bid(self, user, amount=None):
+        self.reinit()
+        if self.isAuction:
+            if self.lastbider == user._id:
+                raise CustomException("Already highest bidder", 401)
+            else:
+                if amount > self.currentBid + self.increaments:
+                    self.currentBid += amount or self.increaments
+                    self.lastbider = user._id
+                else:
+                    raise CustomException("Amount below existing bid", 401)
+            self.validate()
+            self._update({"lastbider": self.lastbider, "currentBid": self.currentBid})
+        else:
+            raise CustomException("Cannot Bid", 401)
 
     def verify(self, userid):
         if Admin(userid).find() != None:
             if self._id:
-                self.verified = True
-
                 self._update(
                     {
-                        **self.find()[0],
-                        **{
-                            "verified": self.verified,
-                        },
+                        "verified": not self.find()[0]["verified"],
                     }
                 )
             else:
@@ -77,12 +97,12 @@ class Listing(Models):
         data = self.find()
         if data:
             if (
-                user.valid
+                user._valid
                 and isinstance(user, Admin)
                 or data[0].get("createdBy") == user._id
             ):
                 self._remove()
-                
+
             else:
                 raise CustomException("UnAuthorized", 401)
         else:
@@ -113,5 +133,9 @@ class Listing(Models):
                 "categories": self.categories,
                 "createdBy": self.createdBy,
                 "creationTime": self.creationTime,
+                "isAuction": self.isAuction,
+                "endTime": self.endTime,
+                "startPrice": self.startPrice,
+                "increaments": self.increaments,
             }
         )

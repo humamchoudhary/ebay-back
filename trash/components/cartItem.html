@@ -1,0 +1,19 @@
+<tr>
+  <td>{{cartItem.name}}</td>
+  <td>{{cartItem.description}}</td>
+  <td class="flex flex-row justify-between">
+    <button
+      hx-post="/cart/add"
+      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+    >
+      +
+    </button>
+    {{cartItem.amount}}
+    <button
+      hx-post="/cart/remove"
+      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+    >
+      -
+    </button>
+  </td>
+</tr>

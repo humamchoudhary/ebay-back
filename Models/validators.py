@@ -51,4 +51,13 @@ class PasswordValidator(Validator):
         super().__init__(required, min_len=7, max_len=max_len)
 
     def __call__(self, value):
-        return super().__call__(value)
+        return super().__call__(value) and self.validate_password(value)
+
+    def validate_password(self, value):
+        if not re.search("[a-z]", value):
+            return False
+        elif not re.search("[A-Z]", value):
+            return False
+
+        else:
+            return True

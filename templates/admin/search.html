@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Search</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css"
+    />
+    <script src="https://unpkg.com/htmx.org@1.9.4"></script>
+  </head>
+
+  <body>
+    <section class="section">
+      <div class="columns">
+        <div class="column is-one-third is-offset-one-third">
+          <input
+            type="text"
+            class="input"
+            placeholder="Search"
+            name="name"
+            hx-get="/admin/search"
+            hx-trigger="keyup changed delay:500ms"
+          />
+
+          <div id="filter-dropdown" class="dropdown">
+            <div id="dropdown-trigger" class="dropdown-trigger">
+              <button
+                class="button"
+                aria-haspopup="true"
+                aria-controls="dropdown-menu"
+              >
+                <span>Filters</span>
+                <span class="icon">
+                  <i class="fas fa-angle-down" aria-hidden="true"></i>
+                </span>
+              </button>
+            </div>
+            <div class="dropdown-menu" id="dropdown-menu" role="menu">
+              <div class="dropdown-content">
+                <p
+                  class="dropdown-item is-active"
+                  hx-post="/admin/search/changeFilter"
+                  hx-vals='{"filterBy":"name"}'
+                  hx-trigger="click"
+                >
+                  Name
+                </p>
+                <p
+                  class="dropdown-item"
+                  hx-post="/admin/search/changeFilter"
+                  hx-vals='{"filterBy":"name"}'
+                  hx-trigger="click"
+                >
+                  verified
+                </p>
+                <p
+                  class="dropdown-item"
+                  hx-post="/admin/search/changeFilter"
+                  hx-vals='{"filterBy":"name"}'
+                  hx-trigger="click"
+                >
+                  category
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div id="filter">{% include 'admin/frags/frags.html'%}</div>
+        </div>
+      </div>
+      <table
+        class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth"
+      >
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Created By</th>
+            <th>Creation Time</th>
+            <th>verified</th>
+            <th>Categories</th>
+          </tr>
+        </thead>
+        <!-- <tbody id="results">
+
+          
+        </tbody> -->
+      </table>
+    </section>
+    <script>
+      document
+        .getElementById("dropdown-trigger")
+        .addEventListener("click", function () {
+          this.parentElement.classList.toggle("is-active");
+        });
+    </script>
+  </body>
+</html>

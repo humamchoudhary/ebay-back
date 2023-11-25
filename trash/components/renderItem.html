@@ -1,0 +1,22 @@
+<tr id="item-{{item._id}}">
+  <td>{{item._id}}</td>
+  <td>{{item.description}}</td>
+  <td>{{item.createdBy}}</td>
+  <td>{{item.creationTime}}</td>
+  <td>
+    <input
+      type="checkbox"
+      {%
+      if
+      item.verified
+      %}checked{%
+      endif
+      %}
+      hx-post="/admin/verify"
+      hx-vals='{"id":"{{ item._id }}"}'
+      hx-target="#item-{{item._id}}"
+      hx-swap="outerHTML"
+    />
+  </td>
+  <td>{{item.categories}}</td>
+</tr>

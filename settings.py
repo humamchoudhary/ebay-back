@@ -1,3 +1,4 @@
+from functools import wraps
 from decouple import config
 from flask import Flask, jsonify, session, request, abort
 from flask_cors import CORS
@@ -5,7 +6,9 @@ from flask_session import Session
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from pymongo import MongoClient, cursor
+from bson.objectid import ObjectId
 from datetime import timedelta
+import logging
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = config("FLASK_SECRET_KEY")
@@ -34,6 +37,13 @@ limiter = Limiter(
 CORS(app)
 sess = Session(app)
 
+# Logger
+# logging.basicConfig(
+#     filename="record.log",
+#     level=logging.DEBUG,
+#     format="%(asctime)s  %(levelname)s : %(message)s",
+# )
+
 
 def create_response(data=None, message="Success", error=False, status=200):
     response = {"status": status, "message": message, "error": error, "data": data}
@@ -45,7 +55,6 @@ def create_response(data=None, message="Success", error=False, status=200):
 def sessionCheck():
     session.permanent = True
     app.permanent_session_lifetime = timedelta(days=15)
-    print(session.items())
     if session and session.get("ip") and session.get("ip") != request.remote_addr:
         abort(401)
     elif not session or not session.get("ip"):
@@ -58,7 +67,6 @@ def sessionCheck():
 @limiter.exempt
 def sessionUser():
     if session and session.get("user"):
-        print(session.items())
         return create_response({"id": session.get("user")})
     else:
         return create_response(error=True, message="No user found", status=401)
@@ -73,3 +81,27 @@ def cur_to_list(cur, first=False):
     else:
         cur["_id"] = str(cur["_id"])
         return cur
+
+
+def adminInit(id=None, email=None):
+    roles = client["admin"].list_collection_names()
+    for i in roles:
+        admin = client["admin"][i].find_one(
+            {"email": {"$eq": email}} if email else {"_id": ObjectId(id)}
+        )
+        if admin:
+            return i
+    return False
+
+
+def role_required(*allowed_roles):
+    def decorator(f):
+        @wraps(f)
+        def wrapped(*args, **kwargs):
+            if session.get("adminType") not in allowed_roles:
+                return "Unauthorized", 401
+            return f(*args, **kwargs)
+
+        return wrapped
+
+    return decorator

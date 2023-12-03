@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <!-- <link
+      href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css"
+      rel="stylesheet"
+    /> -->
+  </head>
+  <body>
+    <div class="flex h-screen w-screen justify-center items-center">
+      <form action="/admin/signup" method="post">
+        {%if error%}{{error.message}}{%endif%}
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          required
+        /><br /><br />
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          required
+        /><br /><br />
+        <input
+          type="name"
+          name="username"
+          placeholder="Username"
+          required
+        /><br /><br />
+
+        <input type="radio" id="moderator" name="role" value="moderator" />
+        <label for="moderator">Moderator</label><br />
+        <input
+          type="radio"
+          id="customerservice"
+          name="role"
+          value="customerservice"
+        />
+        <label for="customerservice">Customer Service</label><br />
+        <input type="radio" id="developer" name="role" value="developer" />
+        <label for="developer">Developer</label><br />
+        <input type="radio" id="superuser" name="role" value="superuser" />
+        <label for="superuser">Super User</label><br />
+        <button type="submit">Login</button>
+      </form>
+    </div>
+    <!-- <script>
+      const form = document.querySelector("form");
+
+      // Get button reference
+      const button = document.querySelector("button");
+
+      button.addEventListener("click", (e) => {
+        e.preventDefault();
+
+        const email = form.email.value;
+        const password = form.password.value;
+        const username = form.username.value;
+        const role = form.role.value;
+        console.log(email);
+        console.log(password);
+        fetch("/admin/signup", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+            password,
+            username,
+            role,
+          }),
+        }).then((res) => {
+          console.log(res);
+          if (res.redirected) {
+            // we got redirected!
+            window.location.href = res.url;
+          }
+        });
+      });
+    </script> -->
+  </body>
+</html>

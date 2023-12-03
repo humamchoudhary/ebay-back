@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Chat - {{chat.subject}}</title>
+  </head>
+
+  <body>
+    <div class="chat-window">
+      <div class="chat-messages">
+        <div class="messages">
+          {% for message in chat.chat %} {% if message.sender == current_user %}
+          <div class="message-from-current-users">
+            {{ message.message }} - from: {{message.sender}} - at:
+            {{message.timesent}}
+          </div>
+          {% else %}
+          <div class="message-from-other-users">{{ message.message }}</div>
+          {% endif %} {% endfor %}
+        </div>
+      </div>
+
+      <div class="chat-input">
+        <form action="/user/chat/{{chat._id}}" method="post">
+          <input type="text" name="message" placeholder="Message" />
+          <button>Send</button>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

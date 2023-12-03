@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Customer Service Chat</title>
+  </head>
+  <body>
+    <header>
+      <h1>Customer Service Chat</h1>
+    </header>
+
+    <div id="chat-container">
+      <div id="ticket-form">
+        <h2>Create a Ticket</h2>
+        <form>
+          <div>
+            <label for="name">Name:</label>
+            <input type="text" id="name" />
+          </div>
+          <div>
+            <label for="subject">Subject:</label>
+            <input type="text" id="subject" />
+          </div>
+          <div>
+            <label for="message">Message:</label>
+            <textarea id="message"></textarea>
+          </div>
+          <button type="submit">Open Ticket</button>
+        </form>
+      </div>
+      <table>
+        <thead>
+          <th>ID</th>
+          <th>Subject</th>
+          <th>Status</th>
+        </thead>
+        <tbody>
+          {% for chat in chats %}
+          <tr onclick="location.href='/user/chat/{{chat._id}}'">
+            <td>{{chat._id}}</td>
+            <td>{{chat.subject}}</td>
+            <td>{{chat.status}}</td>
+          </tr>
+          {%endfor%}
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>

@@ -20,54 +20,12 @@
             class="input"
             placeholder="Search"
             name="name"
-            hx-get="/admin/search"
+            hx-get="/admin/search/filter"
             hx-trigger="keyup changed delay:500ms"
+            hx-target="#search"
           />
 
-          <div id="filter-dropdown" class="dropdown">
-            <div id="dropdown-trigger" class="dropdown-trigger">
-              <button
-                class="button"
-                aria-haspopup="true"
-                aria-controls="dropdown-menu"
-              >
-                <span>Filters</span>
-                <span class="icon">
-                  <i class="fas fa-angle-down" aria-hidden="true"></i>
-                </span>
-              </button>
-            </div>
-            <div class="dropdown-menu" id="dropdown-menu" role="menu">
-              <div class="dropdown-content">
-                <p
-                  class="dropdown-item is-active"
-                  hx-post="/admin/search/changeFilter"
-                  hx-vals='{"filterBy":"name"}'
-                  hx-trigger="click"
-                >
-                  Name
-                </p>
-                <p
-                  class="dropdown-item"
-                  hx-post="/admin/search/changeFilter"
-                  hx-vals='{"filterBy":"name"}'
-                  hx-trigger="click"
-                >
-                  verified
-                </p>
-                <p
-                  class="dropdown-item"
-                  hx-post="/admin/search/changeFilter"
-                  hx-vals='{"filterBy":"name"}'
-                  hx-trigger="click"
-                >
-                  category
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div id="filter">{% include 'admin/frags/frags.html'%}</div>
+          <!-- <div id="filter">{% include 'admin/frags/frags.html'%}</div> -->
         </div>
       </div>
       <table
@@ -75,6 +33,7 @@
       >
         <thead>
           <tr>
+            <th>id</th>
             <th>Name</th>
             <th>Description</th>
             <th>Created By</th>
@@ -83,10 +42,9 @@
             <th>Categories</th>
           </tr>
         </thead>
-        <!-- <tbody id="results">
-
-          
-        </tbody> -->
+        <tbody id="search">
+          {% include '/admin/frags/searchItems.html'%}
+        </tbody>
       </table>
     </section>
     <script>

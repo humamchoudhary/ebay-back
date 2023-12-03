@@ -139,11 +139,33 @@ class User(Users):
 
 
 class Admin(Users):
+    def __init__(
+        self, email=None, username=None, password=None, role=None, id=None
+    ) -> None:
+        super().__init__(email, username, password, role, id)
+
+
+class Moderator(Admin):
     def __init__(self, email=None, username=None, password=None, id=None) -> None:
-        super().__init__(email, username, password, "admin", id)
+        super().__init__(email, username, password, "moderator", id)
 
     def verify(self, item):
         if self.role == "admin":
             item.verified = not item.verified
         else:
             raise CustomException("UnAuthorized", 401)
+
+
+class SuperUser(Admin):
+    def __init__(self, email=None, username=None, password=None, id=None) -> None:
+        super().__init__(email, username, password, "superuser", id)
+
+
+class Developer(Admin):
+    def __init__(self, email=None, username=None, password=None, id=None) -> None:
+        super().__init__(email, username, password, "developer", id)
+
+
+class CustomerService(Admin):
+    def __init__(self, email=None, username=None, password=None, id=None) -> None:
+        super().__init__(email, username, password, "customerservice", id)

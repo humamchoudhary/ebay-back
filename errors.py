@@ -1,58 +1,45 @@
-from flask import jsonify
-from settings import app, create_response
+from flask import render_template
+from settings import app
 
 
 @app.errorhandler(429)
 def toomanyrequests(error):
-    return create_response(
-        message="too many requests" if not error.description else error.description,
-        error=True,
-        status=429,
-    )
+    message = "too many requests" if not error.description else error.description
+    status = 429
+    return render_template("error.html", error={"code": status, "message": message})
 
 
 @app.errorhandler(500)
 def internalServerError(error):
-    print(error.description)
-    return create_response(
-        message="Internal Server Error" if not error.description else error.description,
-        error=True,
-        status=500,
-    )
+    message = "Internal Server Error" if not error.description else error.description
+    status = 500
+    return render_template("error.html", error={"code": status, "message": message})
 
 
 @app.errorhandler(404)
 def Error404(error):
-    print(error.description)
-    return create_response(
-        message="Page not found" if not error.description else error.description,
-        error=True,
-        status=404,
-    )
+    message = "Page not found" if not error.description else error.description
+    status = 404
+
+    return render_template("error.html", error={"code": status, "message": message})
 
 
 @app.errorhandler(401)
 def ErrorUnAuth(error):
-    return create_response(
-        message="Unauthorized" if not error.description else error.description,
-        error=True,
-        status=401,
-    )
+    message = "Unauthorized" if not error.description else error.description
+    status = 401
+    return render_template("error.html", error={"code": status, "message": message})
 
 
 @app.errorhandler(403)
 def Error(error):
-    return create_response(
-        message="Error Occured" if not error.description else error.description,
-        error=True,
-        status=403,
-    )
+    message = "Error Occured" if not error.description else error.description
+    status = 403
+    return render_template("error.html", error={"code": status, "message": message})
 
 
 @app.errorhandler(406)
 def internalServerError(error):
-    return create_response(
-        message="Not Acceptable" if not error.description else error.description,
-        error=True,
-        status=406,
-    )
+    message = "Not Acceptable" if not error.description else error.description
+    status = 406
+    return render_template("error.html", error={"code": status, "message": message})

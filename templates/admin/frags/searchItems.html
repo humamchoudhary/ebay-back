@@ -1,0 +1,11 @@
+{% for item in res %}
+<tr>
+  <td>{{item.name}}</td>
+  <td>{{item._id}}</td>
+  <td>{{item.description}}</td>
+  <td>{{item.createdBy}}</td>
+  <td>{{item.creationTime}}</td>
+  <td>{{item.verified}}</td>
+  <td>{{" , ".join(item.categories)}}</td>
+</tr>
+{%endfor%}

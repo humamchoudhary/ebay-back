@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+
+  <body>
+    <h1>WELCOME PAKBAY ADMIN PORTAL</h1>
+    {% if role == "superuser" or role == "developer" %}<a href="/admin/logs"
+      >logs</a
+    >
+    {%endif%} {% if role == "superuser" or role == "moderator" %}<a
+      href="/admin/search"
+      >item catelog</a
+    >
+    {%endif%} {% if role == "superuser" %}<a href="/admin/addAdmin"
+      >Add Admin</a
+    >
+    {%endif%}
+  </body>
+</html>

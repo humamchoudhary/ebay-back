@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <script src="https://unpkg.com/htmx.org@1.9.4"></script>
+    <title>Document</title>
+  </head>
+  <body>
+    <div class="columns">
+      <form
+        hx-post="/admin/logs/filter"
+        hx-swap="innerHTML"
+        hx-target="#logTable"
+      >
+        <input
+          type="text"
+          class="input"
+          placeholder="Search"
+          name="query"
+        /><br />
+        <input type="radio" id="all" name="filterBy" value="" />
+        <label for="all">All</label><br />
+        <input type="radio" id="DEBUG" name="filterBy" value="DEBUG" />
+        <label for="DEBUG">DEBUG</label><br />
+        <input type="radio" id="INFO" name="filterBy" value="INFO" />
+        <label for="INFO">INFO</label><br />
+        <input type="radio" id="WARNING" name="filterBy" value="WARNING" />
+        <label for="WARNING">WARNING</label><br />
+        <input type="radio" id="ERROR" name="filterBy" value="ERROR" />
+        <label for="ERROR">ERROR</label><br />
+        <input type="radio" id="CRITICAL" name="filterBy" value="CRITICAL" />
+        <label for="CRITICAL">CRITICAL</label><br />
+        <button type="submit">Filter</button>
+      </form>
+      
+    </div>
+    <table
+      class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth"
+    >
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Type</th>
+          <th>Log</th>
+        </tr>
+      </thead>
+      <tbody id="logTable">
+        {% include 'admin/frags/logTable.html' %}
+      </tbody>
+    </table>
+    
+  </body>
+</html>

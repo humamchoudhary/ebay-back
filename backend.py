@@ -9,7 +9,6 @@ from datetime import datetime
 @limiter.limit("5 per minute")
 def login():
     data = json.loads(request.data.decode("utf-8"))
-    print(data)
     user = User(email=data.get("email"), password=data.get("password"))
 
     try:
@@ -79,7 +78,6 @@ def addItem():
         return create_response({"id": item.getID()})
 
     except Exception as e:
-        print(e)
         abort(e.code, {"message": e.message})
 
 
@@ -155,3 +153,15 @@ def bidAdd():
         return create_response()
     except Exception as e:
         abort(e.code, {"message": e.message})
+
+
+from werkzeug.security import generate_password_hash, check_password_hash
+
+
+@app.template_filter("hash")
+def hash_pass(password):
+    return generate_password_hash(password)
+
+
+def chat(user):
+    pass
